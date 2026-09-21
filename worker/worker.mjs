@@ -1,3 +1,5 @@
+import { serveR2Model } from './r2-model.mjs';
+
 const PUBLIC_PATH = '/yangdong-3d/';
 const ASSETS = new Map([
   ['index.html', 'text/html; charset=utf-8'],
@@ -81,6 +83,12 @@ export async function handleRequest(request, env, fetchUpstream = fetch) {
   const config = configuration(env);
   if (!config) return errorResponse(503, 'Public viewer is not configured', request.method);
   if (redirect) return publicRedirect(url, config.ancestor);
+
+  // Only this fixed public asset can use R2. The object key is a deployment
+  // setting, never a URL, query parameter, header, or client-supplied path.
+  if (name === 'model.ply' && env.MODEL_BUCKET !== undefined) {
+    return serveR2Model(request, env, securityHeaders(config.ancestor));
+  }
 
   // Create a fresh request to this one configured public directory. Client cookies,
   // credentials, forwarding headers and arbitrary query strings never cross it.

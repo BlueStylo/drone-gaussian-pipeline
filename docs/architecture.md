@@ -13,6 +13,8 @@ flowchart LR
   G --> H[Cloudflare Worker · fixed allowlist]
   H --> I[PlayCanvas browser viewer]
   I --> J[Portfolio iframe / public link]
+  F -. prepared option .-> R[Private R2 bucket · model only]
+  R -. optional MODEL_BUCKET .-> H
 ```
 
 ## Reconstruction
@@ -31,9 +33,17 @@ PlayCanvas로 압축 PLY를 표시한다. 장면 설정에는 6개 시점과 기
 
 정적 원본은 공개 전용 경로에서 제한된 자산만 제공한다. 기존 비공개 서비스와 연결하는 범용 프록시를 만들지 않았다. Cloudflare Worker는 정확히 허용된 HTML·CSS·JS·JSON·PLY·라이선스·robots 파일만 GET/HEAD로 가져온다.
 
-클라이언트 Cookie·Authorization을 원본으로 전달하지 않고, 원본의 리디렉션도 따라가지 않는다. 모델을 통째로 메모리에 읽지 않고 스트림으로 전달한다. ETag, 조건부 요청, HEAD, 단일·다중 Range의 전송 의미를 유지한다. 원본 URL은 배포 환경 설정으로 주입하고 저장소에는 넣지 않는다.
+클라이언트 Cookie·Authorization을 원본으로 전달하지 않고, 원본의 리디렉션도 따라가지 않는다. 모델을 통째로 메모리에 읽지 않고 스트림으로 전달한다. 기존 원본 프록시는 ETag, 조건부 요청, HEAD, 단일·다중 Range의 전송 의미를 유지한다. 원본 URL은 배포 환경 설정으로 주입하고 저장소에는 넣지 않는다.
 
 브라우저 캐시는 ETag와 `Cache-Control: public, max-age=0, must-revalidate`로 저장본을 재검증한다. 모델이 같고 저장본이 남아 있으면 304로 본문 전송을 생략할 수 있다. 캐시 삭제·새 브라우저·다른 출처에서는 모델을 다시 받는다. CDN에 영구 저장된 복제본이나 오프라인 사용을 보장하는 구조는 아니다.
+
+### 준비된 R2 모델 경로
+
+2026년 9월 21일 현재 R2 활성화·운영 배포는 대기 중이다. 선택 기능의 코드와 가짜 버킷 기반 검사는 준비됐으며, 공개 서비스가 이미 R2로 전환됐다는 의미는 아니다.
+
+`MODEL_BUCKET`과 `MODEL_KEY`를 배포 설정에 추가하면 정확한 `/yangdong-3d/model.ply`만 비공개 R2 버킷에서 읽는다. 키는 요청에서 받지 않는다. 버킷의 공개 접근이나 `r2.dev` 주소는 필요 없으며 Worker가 고정 모델만 공개한다. 나머지 7개 자산은 기존 원본에서 받아 뷰어·iframe 주소와 코드를 유지한다. 바인딩이 없으면 기존 프록시로 동작하고, 바인딩이 있는데 설정·객체·저장소가 잘못되면 원본으로 폴백하지 않고 일반 오류를 반환한다.
+
+다운로드는 `head`로 메타데이터를 읽고 `get`의 ETag 조건으로 객체 교체를 방어한다. 일반·단일 Range GET은 읽기 2회, HEAD·304·불가능한 범위의 416은 읽기 1회이며 본문은 버퍼링하지 않는다. 단일·끝 생략·접미 Range는 206을 제공하고 다중·잘못된 문법의 Range는 무시하여 전체 200을 반환한다. R2 ETag로 바뀌면 같은 파일도 브라우저에서 최초 한 번 다시 받고 이후 재검증할 수 있다. 비용·활성화·배포 검증은 [배포 문서](deployment.md#optional-r2-model-storage)를 따른다.
 
 ## Portfolio embed
 
@@ -41,4 +51,4 @@ PlayCanvas로 압축 PLY를 표시한다. 장면 설정에는 6개 시점과 기
 
 서버 헤더 검증과 실제 포트폴리오 iframe 완성은 별개다. 이 저장소의 배포 기록은 헤더 허용과 공개 뷰어 동작까지 확인한 스냅샷이다. [삽입 예시](media.md)
 
-공개 주소도 원본 Raspberry Pi와 인터넷 연결에 의존한다. 정적 자산을 다른 원본 호스팅으로 옮길 경우 공개 프록시의 원본 설정과 전송 검증을 함께 갱신해야 한다.
+현재 공개 주소는 원본 Raspberry Pi와 인터넷 연결에 의존한다. R2 선택 기능을 활성화하면 모델 전송의 Pi 의존은 없어지지만 HTML·엔진 등은 계속 원본이 필요하다. 정적 자산을 다른 원본 호스팅으로 옮길 경우 공개 프록시의 원본 설정과 전송 검증을 함께 갱신해야 한다.

@@ -12,12 +12,15 @@
 
 GIF는 실제 웹 뷰어의 조작 시연입니다. 링크를 열면 직접 회전·확대·시점 이동을 할 수 있습니다. 공개 모델은 약 104MB이며 라즈베리파이의 가동과 인터넷 연결이 필요합니다.
 
+**R2 전달 경로 준비 중:** 모델만 Cloudflare R2에 저장해 Pi 업로드 속도 의존을 줄이는 선택 기능을 추가했습니다. 2026년 9월 21일 현재 R2 활성화·운영 배포는 대기 중이며, 위 공개 링크는 기존 원본 프록시를 사용합니다. 활성화해도 공개 주소와 iframe은 유지하고 HTML·엔진 등 나머지 7개 자산은 기존 원본에서 받습니다. [R2 설정과 검증 범위](docs/deployment.md#optional-r2-model-storage)
+
 ## 구현한 것
 
 - **처리 자동화:** 영상 구간 manifest, 프레임 추출, COLMAP 정합, Brush 실행, 단계별 기록과 완료 단계 재사용.
 - **동네 확장:** 기존 집의 이미지·정합 데이터를 복사해 추가 촬영분을 연결하고, 통합 Gaussian 모델을 새로 학습.
 - **검증과 압축:** 카메라 정렬 비교, PNG 기반 평가, Gaussian 개수·SH 차수·원본 해시를 보존하는 압축 검사.
 - **웹 전달:** 6개 시점과 마우스·터치·키보드 조작, 공개 자산 허용 목록, 스트리밍·부분 요청·캐시 검증, 지정 포트폴리오의 iframe 허용.
+- **R2 선택 경로:** 비공개 버킷의 고정 모델 하나만 스트리밍하며 조건부 요청·단일 Range를 처리. 코드는 준비됐으며 실제 R2 배포 속도는 아직 측정하지 않음.
 
 FFmpeg·COLMAP·Brush·PlayCanvas·SplatTransform을 사용합니다. 이 저장소의 기여는 이 도구들을 연결하는 실행·검증 코드와 웹 뷰어·배포 구조입니다. [도구와 코드 출처](docs/provenance.md)
 
@@ -31,6 +34,8 @@ flowchart LR
     F --> G[Public static origin]
     G --> H[Cloudflare Worker]
     H --> I[Browser / portfolio iframe]
+    E -. prepared option .-> R[Private R2 bucket · model only]
+    R -. optional binding .-> H
 ```
 
 ## 실제 제작 결과
@@ -73,7 +78,7 @@ npm run check
 | `pipeline/`, `configs/` | 복원 실행기와 입력 예제 |
 | `scripts/` | 엔진 준비, 결과 검증·압축, 공개 파일 검사 |
 | `viewer/` | 정적 WebGL 뷰어와 공개 장면 설정 |
-| `worker/`, `deploy/` | 공개 전달 프록시와 배포 예제 |
+| `worker/`, `deploy/` | 공개 전달 프록시, 선택적 R2 모델 경로와 배포 예제 |
 | `tests/`, `.github/workflows/` | 합성 입력 기반 검사와 CI |
 | `docs/`, `evidence/`, `assets/` | 과정·측정 기록·시연 |
 
@@ -81,7 +86,7 @@ npm run check
 
 ## 검증 범위와 한계
 
-현재 CI는 공개 파일 경계, Python·JavaScript 문법, 입력·재실행 조건, 합성 카메라 정렬, 작은 PLY의 실제 압축, 뷰어 준비, Worker의 요청·캐시 처리를 검사합니다. 원본 영상 전체의 GPU 학습과 실서비스 배포는 CI에서 실행하지 않습니다.
+현재 CI는 공개 파일 경계, Python·JavaScript 문법, 입력·재실행 조건, 합성 카메라 정렬, 작은 PLY의 실제 압축, 뷰어 준비, Worker의 요청·캐시 처리를 검사합니다. R2 처리는 작은 가짜 버킷·스트림으로 HTTP 동작과 오류 경계를 검사하며 실제 R2 계정에 접근하지 않습니다. 원본 영상 전체의 GPU 학습과 실서비스 배포는 CI에서 실행하지 않습니다.
 
 보존된 원본 작업에서는 실제 모델 렌더링과 공개 다운로드를 확인했습니다. 이번 공개용 CLI 정리본으로 전체 12,000단계 학습을 다시 실행한 것은 아닙니다. 나무·유리·가려진 면·먼 배경의 품질 한계가 있으며, 측량 정확도나 모바일·다수 동시 접속 성능을 보장하지 않습니다.
 

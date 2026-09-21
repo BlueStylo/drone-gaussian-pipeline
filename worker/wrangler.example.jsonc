@@ -4,7 +4,14 @@
   "main": "worker.mjs",
   "compatibility_date": "2026-09-21",
   "workers_dev": true,
+  // Optional: enable only after R2 activation and a verified model upload.
+  // Leave these lines commented to retain the existing origin-only proxy.
+  // "r2_buckets": [
+  //   { "binding": "MODEL_BUCKET", "bucket_name": "your-private-model-bucket" }
+  // ],
   "vars": {
+    // Required when MODEL_BUCKET is bound. This key is never taken from a URL.
+    // "MODEL_KEY": "models/your-model-sha256.ply",
     "ASSET_BASE_URL": "https://assets.example.com/yangdong-3d/",
     "ALLOWED_FRAME_ORIGIN": "https://portfolio.example.com"
   }
