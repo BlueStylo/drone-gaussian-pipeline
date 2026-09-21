@@ -124,6 +124,12 @@ export async function handleRequest(request, env, fetchUpstream = fetch) {
     const value = upstream.headers.get(name);
     if (value !== null) headers.set(name, value);
   }
+  if (name === 'model.ply') {
+    // The model is intentionally public; other viewers may fetch it without
+    // credentials. This does not grant access to any other asset or route.
+    headers.set('Access-Control-Allow-Origin', '*');
+    headers.set('Access-Control-Expose-Headers', 'ETag, Content-Range, Accept-Ranges');
+  }
   const upstreamType = upstream.headers.get('Content-Type') || '';
   const multipartRange = upstream.status === 206
     && upstreamType.split(';', 1)[0].trim().toLowerCase() === 'multipart/byteranges';

@@ -397,3 +397,57 @@ test('model origin failures never fall back to the asset origin or leak redirect
     }
   }
 });
+
+test('only accepted public model responses allow cross-origin reads without credentials', async () => {
+  for (const env of [ENV, MODEL_ENV]) {
+    for (const method of ['GET', 'HEAD']) {
+      for (const status of [200, 206, 304, 416]) {
+        const response = await configuredRequest(req('/yangdong-3d/model.ply', {
+          method, headers: { Origin: 'https://another-viewer.example.com', Cookie: 'private=secret', Authorization: 'Bearer secret' },
+        }), env, async (_url, options) => {
+          assert.equal(options.method, method);
+          assert.deepEqual([...options.headers], []);
+          return new Response(status === 304 ? null : 'model', { status, headers: {
+            ETag: '"model"', 'Content-Range': status === 416 ? 'bytes */10' : 'bytes 0-4/10', 'Accept-Ranges': 'bytes',
+            'Access-Control-Allow-Origin': 'https://upstream-policy.example.com',
+            'Access-Control-Allow-Credentials': 'true', 'Access-Control-Expose-Headers': 'Set-Cookie', 'Set-Cookie': 'secret',
+          } });
+        });
+        assert.equal(response.status, status);
+        assert.equal(response.headers.get('Access-Control-Allow-Origin'), '*');
+        assert.equal(response.headers.get('Access-Control-Expose-Headers'), 'ETag, Content-Range, Accept-Ranges');
+        assert.equal(response.headers.get('Access-Control-Allow-Credentials'), null);
+        assert.equal(response.headers.get('Set-Cookie'), null);
+        assert.equal(response.headers.get('ETag'), '"model"');
+        assert.match(response.headers.get('Content-Security-Policy'), /frame-ancestors 'self' https:\/\/portfolio\.example\.com$/);
+        if (method === 'HEAD' || status === 304 || status === 416) assert.equal(response.body, null);
+        else assert.equal(await response.text(), 'model');
+      }
+    }
+  }
+});
+
+test('model CORS does not spread to other assets, private paths, redirects, errors, or preflight', async () => {
+  const noCors = response => {
+    for (const header of ['Access-Control-Allow-Origin', 'Access-Control-Allow-Credentials', 'Access-Control-Expose-Headers',
+      'Access-Control-Allow-Methods', 'Access-Control-Allow-Headers']) assert.equal(response.headers.get(header), null);
+  };
+  for (const name of ['', 'index.html', 'viewer.css', 'viewer.mjs', 'scene.json',
+    'playcanvas-2.22.1.mjs', 'PLAYCANVAS_LICENSE.txt', 'robots.txt']) {
+    const response = await configuredRequest(req('/yangdong-3d/' + name, { headers: { Origin: 'https://another-viewer.example.com' } }), MODEL_ENV,
+      async () => new Response('asset', { headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Credentials': 'true' } }));
+    assert.equal(response.status, 200); noCors(response);
+  }
+  for (const [path, status] of [['/', 302], ['/api/cameras', 404], ['/yangdong-3d/private.ply', 404], ['/yangdong-3d/%6dodel.ply', 404]]) {
+    const response = await configuredRequest(req(path), MODEL_ENV, neverFetch);
+    assert.equal(response.status, status); noCors(response);
+  }
+  const preflight = await configuredRequest(req('/yangdong-3d/model.ply', { method: 'OPTIONS', headers: {
+    Origin: 'https://another-viewer.example.com', 'Access-Control-Request-Method': 'GET', 'Access-Control-Request-Headers': 'authorization',
+  } }), MODEL_ENV, neverFetch);
+  assert.equal(preflight.status, 405); assert.equal(preflight.headers.get('Allow'), 'GET, HEAD'); noCors(preflight);
+  const invalid = await configuredRequest(req('/yangdong-3d/model.ply'), { ...MODEL_ENV, MODEL_BASE_URL: '' }, neverFetch);
+  assert.equal(invalid.status, 503); noCors(invalid);
+  const unavailable = await configuredRequest(req('/yangdong-3d/model.ply'), MODEL_ENV, async () => new Response('private error', { status: 500 }));
+  assert.equal(unavailable.status, 502); noCors(unavailable);
+});
