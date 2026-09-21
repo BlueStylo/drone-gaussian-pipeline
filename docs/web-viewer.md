@@ -14,7 +14,7 @@ python3 -m http.server 8080 --bind 127.0.0.1 --directory viewer
 
 Open `http://127.0.0.1:8080/`. The preparation command copies only `node_modules/playcanvas/build/playcanvas.mjs` and its MIT license into the ignored runtime files `viewer/playcanvas-2.22.1.mjs` and `viewer/PLAYCANVAS_LICENSE.txt`. It requires the pinned PlayCanvas 2.22.1 installation and makes no network requests. It never downloads a model. Until a model is supplied, the page displays setup help.
 
-Python's development server is for local viewing. Use the dedicated allowlist configuration in deployment.md (`deployment.md` — 후속 공개 단계에서 추가) for public delivery and byte-range/cache support.
+Python's development server is for local viewing. Use the dedicated allowlist configuration in [deployment.md](deployment.md) for public delivery and byte-range/cache support.
 
 ## Supply a model
 
