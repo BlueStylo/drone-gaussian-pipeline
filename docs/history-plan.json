@@ -1,0 +1,198 @@
+{
+  "publication_date": "2026-09-21",
+  "mode": "retrospective-publication",
+  "notice": "Existing work from 2026-09-14 to 2026-09-21 is being organized as seven current-date issues and PRs. Dates are not backdated; no historical review or CI is fabricated.",
+  "stages": [
+    {
+      "number": 1,
+      "slug": "mac-sample",
+      "title": "Mac 환경 구축과 영상 기반 Gaussian 샘플 검증",
+      "work_dates": [
+        "2026-09-14"
+      ],
+      "problem": "Apple Silicon 맥북에서 영상 입력부터 카메라 정합·Gaussian 학습·브라우저 표시까지 연결되는지 먼저 확인해야 했다.",
+      "change": [
+        "도구 역할과 기록된 버전, 입력·산출물 경계를 문서화한다.",
+        "실제 정물 샘플 시험의 공개 가능한 측정 수치를 정리한다.",
+        "도구 설치와 실행에 필요한 재현 전제, 제3자 샘플 출처를 안내한다."
+      ],
+      "validation": [
+        "원래 시험 기록: 131/131장 등록, 4,000단계 학습, 281,719개 Gaussian, 총 처리 366.15초.",
+        "원래 시험 기록: PLY 길이·수치 검사와 Mac 브라우저 회전·확대·초기화 확인.",
+        "공개 저장소 정리에서는 제3자 샘플 영상·생성 모델을 재배포하지 않는다."
+      ],
+      "evidence": [
+        "evidence/sample-run.json",
+        "docs/setup.md",
+        "docs/provenance.md"
+      ],
+      "additional_stage_files": [
+        "docs/setup.md",
+        "docs/provenance.md",
+        "evidence/sample-run.json"
+      ]
+    },
+    {
+      "number": 2,
+      "slug": "house-pipeline",
+      "title": "집 촬영 구간 추출과 복원 실행 파이프라인",
+      "work_dates": [
+        "2026-09-19"
+      ],
+      "problem": "두 개의 드론 촬영분을 재현 가능한 입력 구간으로 지정하고 실행 중단·재시도와 원본 보존을 관리해야 했다.",
+      "change": [
+        "프레임 추출, COLMAP 정합·보정, Brush 학습을 단계별 실행 코드로 공개한다.",
+        "원본별 추출 구간·해상도·학습 설정을 설정 예시로 분리한다.",
+        "완료 단계 재사용, 실제 이미지 집계, 실행 기록과 원본 보존 확인을 다룬다."
+      ],
+      "validation": [
+        "원래 실행 기록: 309+80=389장 모두 하나의 모델에 등록.",
+        "원래 실행 기록: 평균 재투영 오차 0.529845px, 6,000단계, 572,927개 Gaussian.",
+        "원래 실행 기록: 학습 846.76초, 성공 단계 합계 27분43초. 공개용 코드 검사는 PR의 실제 CI 결과와 구분한다."
+      ],
+      "evidence": [
+        "evidence/house-run.json"
+      ],
+      "additional_stage_files": [
+        "evidence/house-run.json"
+      ]
+    },
+    {
+      "number": 3,
+      "slug": "town-extension",
+      "title": "기존 집 정합을 재사용해 동네 촬영분으로 확장",
+      "work_dates": [
+        "2026-09-19"
+      ],
+      "problem": "기존 집과 새 동네 촬영분이 따로 떠 있는 결과가 되지 않도록 하나의 카메라 좌표계로 연결해야 했다.",
+      "change": [
+        "기존 389장과 COLMAP DB·희소 모델을 재사용하고 추가 촬영 293장을 정렬한다.",
+        "통합 정합·기하 검사와 12,000단계 새 학습 설정을 공개한다.",
+        "프레임·정합·학습 시간, 초기 집 복원과 확장 실행의 범위를 분리해 기록한다."
+      ],
+      "validation": [
+        "원래 실행 기록: 682/682장 등록, 촬영 구간 사이 검증된 이미지 쌍 1,391개.",
+        "원래 실행 기록: 344,264개 희소점, 평균 재투영 오차 0.474761px.",
+        "원래 실행 기록: 전처리24분50초+학습47분57초, 처리 합계72분48초. 최초 집 복원·설치·배포는 제외."
+      ],
+      "evidence": [
+        "evidence/town-run.json",
+        "evidence/reconstruction-timing.json",
+        "docs/results.md"
+      ],
+      "additional_stage_files": [
+        "evidence/town-run.json",
+        "evidence/reconstruction-timing.json",
+        "docs/results.md"
+      ]
+    },
+    {
+      "number": 4,
+      "slug": "compressed-viewer",
+      "title": "PLY 수치·압축 검증과 인터랙티브 웹 뷰어",
+      "work_dates": [
+        "2026-09-19"
+      ],
+      "problem": "약398.6MB의 학습 결과를 브라우저에서 전달하고 집 정면과 주변 시점을 쉽게 둘러볼 수 있어야 했다.",
+      "change": [
+        "보관용 원본과 웹 압축 모델을 분리하고 점 개수·SH차수·파일 구조를 검사한다.",
+        "집 정면을 기본으로 6개 시점과 회전·이동·확대·초기화 UI를 제공한다.",
+        "엔진·대형 모델은 Git에 포함하지 않고 사용자가 준비하도록 구성한다."
+      ],
+      "validation": [
+        "원래 결과: 1,688,991개 Gaussian과 SH3 유지,103,505,301바이트로74.03% 용량 감소.",
+        "원래 수치 검사: 원본 NaN/Infinity0개, 압축 본문 길이와 점 개수 확인.",
+        "원래 브라우저 검사: 집 정면·동네 시점 전환과 조작 확인. 압축은 양자화가 포함된 방식이다."
+      ],
+      "evidence": [
+        "evidence/town-run.json",
+        "docs/results.md"
+      ],
+      "additional_stage_files": []
+    },
+    {
+      "number": 5,
+      "slug": "public-origin-cache",
+      "title": "공개 전용 정적 제공과 모델 캐시 재검증",
+      "work_dates": [
+        "2026-09-19",
+        "2026-09-21"
+      ],
+      "problem": "주민들이 로그인 없이 모델을 보고 재방문 시 불필요한 전체 다운로드를 줄이되 비공개 서비스와 경계를 유지해야 했다.",
+      "change": [
+        "공개 자산만 제공하는 정적 서버 설정 예시와 운영 경계를 정리한다.",
+        "ETag·Cache-Control·조건부 요청과 모델 Range 전송을 문서화한다.",
+        "현재 비공개 서비스 코드·주소·계정 정보를 저장소에 포함하지 않는다."
+      ],
+      "validation": [
+        "원래 공개 전송 기록: HTML200, 모델HEAD200,Range206, 조건부304와 본문0바이트.",
+        "브라우저 캐시는 출처별이며 저장본이 없으면 처음부터 내려받을 수 있음을 명시한다.",
+        "비공개 서비스 캐시의 내부 구현·운영 로그는 공개 이력에서 제외한다."
+      ],
+      "evidence": [
+        "docs/architecture.md"
+      ],
+      "additional_stage_files": [
+        "docs/architecture.md"
+      ]
+    },
+    {
+      "number": 6,
+      "slug": "portfolio-media",
+      "title": "실제 3D 조작 GIF와 제작 과정·측정 문서",
+      "work_dates": [
+        "2026-09-21"
+      ],
+      "problem": "프로젝트 첫 화면에서 정지 이미지가 아닌 조작 가능한3D의 결과임을 보여주고 제작 과정과 실제 비용을 설명해야 했다.",
+      "change": [
+        "실제 뷰어 시점 이동으로 만든 GIF와 렌더 포스터를 추가한다.",
+        "대표 입력 프레임3장과 미디어 권리·메타데이터 검사 기록을 제공한다.",
+        "원본 영상·대형 모델을 Git에 복제하지 않는 배포 구성을 안내한다."
+      ],
+      "validation": [
+        "기존 미디어 기록: GIF480×270/8.38초, 실제3D뷰어의 마우스 이동 녹화.",
+        "공개 정리 시 JPG EXIF/GPS/XMP 부재를 확인하고 원래 픽셀을 복사했다.",
+        "유튜브URL은 확인되지 않아 임시 링크를 게시하지 않는다."
+      ],
+      "evidence": [
+        "docs/media.md",
+        "assets/manifest.json"
+      ],
+      "additional_stage_files": [
+        "docs/media.md",
+        "assets/"
+      ]
+    },
+    {
+      "number": 7,
+      "slug": "worker-embed",
+      "title": "독립 공개 주소와 포트폴리오 iframe 연결",
+      "work_dates": [
+        "2026-09-21"
+      ],
+      "problem": "기존 시스템 이름이 드러나지 않는 공개 주소를 제공하고 허용한 포트폴리오에서만iframe으로 표시해야 했다.",
+      "change": [
+        "Cloudflare Worker의 고정 원본·정확한 자산 허용 목록·GET/HEAD 스트리밍을 공개한다.",
+        "Cookie·Authorization·리디렉션 차단, Range·304전달과 삽입 출처 제한을 검사한다.",
+        "실제 공개 주소의 전송·브라우저 확인 결과와 이번7단계 공개 이력을 기록한다."
+      ],
+      "validation": [
+        "원래 배포 기록:103,505,301바이트 전체 다운로드 SHA-256이 모델과 일치.",
+        "원래 배포 기록:단일·다중Range,조건부304,허용되지 않은 경로404,쓰기405.",
+        "원래 브라우저 기록:집 정면 표시·동네 시점 선택·정면 복귀,관찰된 오류·경고0개.",
+        "iframe 허용 헤더와 X-Frame-Options 부재 확인. 실제 포트폴리오 페이지 구현은 별도 작업.",
+        "현재 공개용 자동 검사는 PR의 실제 실행 결과로 보고한다. 과거의 리뷰·CI가 있었던 것처럼 재현하지 않는다."
+      ],
+      "evidence": [
+        "evidence/delivery-verification.json",
+        "docs/history.md",
+        "docs/history-plan.json"
+      ],
+      "additional_stage_files": [
+        "evidence/delivery-verification.json",
+        "docs/history.md",
+        "docs/history-plan.json"
+      ]
+    }
+  ]
+}
