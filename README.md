@@ -1,5 +1,3 @@
-> 공개 이력 6/7단계: 독립 주소용 Worker 소스와 최종 전송 증거는 다음 PR에서 추가합니다.
-
 # Drone Gaussian Pipeline
 
 [![CI](https://github.com/BlueStylo/drone-gaussian-pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/BlueStylo/drone-gaussian-pipeline/actions/workflows/ci.yml)
@@ -83,7 +81,7 @@ npm run check
 
 ## 검증 범위와 한계
 
-현재 CI는 공개 파일 경계, 코드 문법, 입력·재실행 조건, 합성 카메라 정렬, 작은 PLY의 실제 압축, 뷰어 준비, Worker의 요청·캐시 처리를 검사합니다. 원본 영상 전체의 GPU 학습과 실서비스 배포는 CI에서 실행하지 않습니다.
+현재 CI는 공개 파일 경계, Python·JavaScript 문법, 입력·재실행 조건, 합성 카메라 정렬, 작은 PLY의 실제 압축, 뷰어 준비, Worker의 요청·캐시 처리를 검사합니다. 원본 영상 전체의 GPU 학습과 실서비스 배포는 CI에서 실행하지 않습니다.
 
 보존된 원본 작업에서는 실제 모델 렌더링과 공개 다운로드를 확인했습니다. 이번 공개용 CLI 정리본으로 전체 12,000단계 학습을 다시 실행한 것은 아닙니다. 나무·유리·가려진 면·먼 배경의 품질 한계가 있으며, 측량 정확도나 모바일·다수 동시 접속 성능을 보장하지 않습니다.
 
