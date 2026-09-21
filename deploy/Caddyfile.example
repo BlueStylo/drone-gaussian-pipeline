@@ -1,0 +1,31 @@
+# Dedicated public assets only. Set PUBLIC_VIEWER_ROOT to a prepared viewer directory.
+# This binds to loopback; provide your own separate HTTPS asset origin if needed.
+http://:8080 {
+	bind 127.0.0.1
+	header {
+		Content-Security-Policy "default-src 'self'; script-src 'self'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'none'"
+		X-Content-Type-Options nosniff
+		Referrer-Policy no-referrer
+		X-Robots-Tag "noindex, nofollow"
+		-Server
+	}
+	route {
+		@write not method GET HEAD
+		respond @write "Method not allowed" 405
+		redir /yangdong-3d /yangdong-3d/ 308
+		@assets path /yangdong-3d/ /yangdong-3d/index.html /yangdong-3d/viewer.mjs /yangdong-3d/viewer.css /yangdong-3d/scene.json /yangdong-3d/model.ply /yangdong-3d/playcanvas-2.22.1.mjs /yangdong-3d/PLAYCANVAS_LICENSE.txt /yangdong-3d/robots.txt
+		handle @assets {
+			uri strip_prefix /yangdong-3d
+			root * "{$PUBLIC_VIEWER_ROOT}"
+			header Cache-Control "public, max-age=0, must-revalidate"
+			@modules path /viewer.mjs /playcanvas-2.22.1.mjs
+			header @modules Content-Type "text/javascript; charset=utf-8"
+			file_server
+		}
+		respond "Not found" 404
+	}
+	handle_errors {
+		header Cache-Control no-store
+		respond "Public asset unavailable" {err.status_code}
+	}
+}

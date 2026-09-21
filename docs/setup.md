@@ -101,6 +101,6 @@ python -m http.server 8080 --bind 127.0.0.1 --directory viewer
 
 ## 5. 공개 배포
 
-배포 문서 (`deployment.md` — 후속 공개 단계에서 추가)를 따라 공개 자산만 제공하는 원본과 Worker를 준비한다. Worker의 `ASSET_BASE_URL`은 끝에 `/`가 붙은 HTTPS 자산 디렉터리, `ALLOWED_FRAME_ORIGIN`은 경로가 없는 단일 HTTPS 출처다. 본인 환경에 맞게 설정하며 기존 서비스의 계정·주소를 공개 저장소에 넣지 않는다.
+[배포 문서](deployment.md)를 따라 공개 자산만 제공하는 원본과 Worker를 준비한다. Worker의 `ASSET_BASE_URL`은 끝에 `/`가 붙은 HTTPS 자산 디렉터리, `ALLOWED_FRAME_ORIGIN`은 경로가 없는 단일 HTTPS 출처다. 본인 환경에 맞게 설정하며 기존 서비스의 계정·주소를 공개 저장소에 넣지 않는다.
 
 공개 뷰어의 프레임과 모델에는 별도 미디어 권리 (`../assets/LICENSE.md` — 후속 공개 단계에서 추가)가 적용된다. 이 저장소의 실행 예시는 프로젝트 소유자의 모델·촬영물을 자유롭게 재배포할 권한을 부여하지 않는다.
