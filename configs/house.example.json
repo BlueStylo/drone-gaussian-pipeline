@@ -1,0 +1,6 @@
+{
+  "segments": [
+    {"path": "../inputs/orbit.mp4", "start": 0, "end": 30, "label": "orbit"},
+    {"path": "../inputs/front.mp4", "start": 5, "end": 25, "label": "front"}
+  ]
+}
