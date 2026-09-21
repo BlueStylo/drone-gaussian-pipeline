@@ -1,0 +1,9 @@
+{
+  "source_run": "../runs/house",
+  "output_run": "../runs/expanded",
+  "segments": [
+    {"path": "../inputs/neighborhood.mp4", "start": 5, "end": 65, "label": "town"}
+  ],
+  "min_registration": 0.85,
+  "cross_match": {"source_stride": 3, "new_clip_prefix_frames": 65, "new_stride": 2}
+}
