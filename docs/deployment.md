@@ -1,5 +1,3 @@
-> 공개 이력 재구성 진행 중: 이 문서는 완성될 실행 흐름을 설명하며, 현재 단계에서 아직 추가되지 않은 코드는 뒤의 PR에서 공개합니다.
-
 # Public deployment
 
 The current [public 3D demo](https://yangdong-3d.yangdong-3d-public-proxy.workers.dev/) uses a Cloudflare Worker in front of a dedicated public asset directory. The model is streamed from the existing source host. Creating that address and enabling its portfolio iframe did not change the existing private camera service, its authentication or its routes. This repository contains a portable public-only extraction; it contains no source hostname, private service configuration, account ID, OAuth token or deployment credentials.
@@ -30,6 +28,8 @@ export PUBLIC_VIEWER_ROOT="$(pwd)/viewer"
 caddy validate --config deploy/Caddyfile.example --adapter caddyfile
 caddy run --config deploy/Caddyfile.example --adapter caddyfile
 ```
+
+The Caddy example was not executed during this public-code export; its DSL is not checked by the Python/JavaScript CI. Run `caddy validate` locally before using it.
 
 The example listens on `http://127.0.0.1:8080/yangdong-3d/`. Choose an unused local port if necessary. A Worker cannot connect to that loopback address: an operator must separately provide a dedicated HTTPS public asset origin. Use a static host or independently managed listener under your control; do not route the repository root or a private application through it. No production service is created by the commands in this repository.
 

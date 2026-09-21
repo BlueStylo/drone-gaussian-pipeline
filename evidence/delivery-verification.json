@@ -1,0 +1,41 @@
+{
+  "record_type": "sanitized_historical_verification",
+  "verified_at": "2026-09-21",
+  "published_at": "2026-09-21",
+  "public_viewer": "https://yangdong-3d.yangdong-3d-public-proxy.workers.dev/",
+  "http": {
+    "html_status": 200,
+    "head_model_status": 200,
+    "model_bytes": 103505301,
+    "single_range_status": 206,
+    "multipart_range_status": 206,
+    "conditional_status": 304,
+    "conditional_body_bytes": 0,
+    "disallowed_path_status": 404,
+    "write_method_status": 405,
+    "set_cookie_present": false
+  },
+  "full_download": {
+    "verified_before_embed_policy_update": true,
+    "bytes": 103505301,
+    "sha256": "c2ce5cf728846c3a791229dd22f0b8635a2f8693842d8ecf6c3ccd3e07d0b428"
+  },
+  "embed_policy": {
+    "frame_ancestors": [
+      "'self'",
+      "https://bluestylo.github.io"
+    ],
+    "x_frame_options_present": false,
+    "header_policy_verified": true,
+    "portfolio_page_integration_verified": false
+  },
+  "browser": {
+    "environment": "Codex in-app browser on Mac",
+    "initial_house_front_visible": true,
+    "views": 6,
+    "neighborhood_selection_visible": true,
+    "return_to_house_front_verified": true,
+    "errors_or_warnings_observed": 0
+  },
+  "scope": "Verification snapshot from the original deployment. Not a continuous availability or mobile-performance guarantee. Underlying private services were not changed for the public Worker."
+}

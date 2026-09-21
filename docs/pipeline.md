@@ -1,5 +1,3 @@
-> 공개 이력 재구성 진행 중: 이 문서는 완성될 실행 흐름을 설명하며, 현재 단계에서 아직 추가되지 않은 코드는 뒤의 PR에서 공개합니다.
-
 # Reconstruction pipeline
 
 These scripts are a current public adaptation of the orchestration used for the
