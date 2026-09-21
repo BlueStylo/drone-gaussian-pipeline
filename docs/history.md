@@ -40,4 +40,4 @@
 | 4 | [Issue #4](https://github.com/BlueStylo/drone-gaussian-pipeline/issues/4) | [PR #11](https://github.com/BlueStylo/drone-gaussian-pipeline/pull/11) |
 | 5 | [Issue #5](https://github.com/BlueStylo/drone-gaussian-pipeline/issues/5) | [PR #12](https://github.com/BlueStylo/drone-gaussian-pipeline/pull/12) |
 | 6 | [Issue #6](https://github.com/BlueStylo/drone-gaussian-pipeline/issues/6) | [PR #13](https://github.com/BlueStylo/drone-gaussian-pipeline/pull/13) |
-| 7 | [Issue #7](https://github.com/BlueStylo/drone-gaussian-pipeline/issues/7) | 현재 단계 PR 작성 중 |
+| 7 | [Issue #7](https://github.com/BlueStylo/drone-gaussian-pipeline/issues/7) | [PR #14](https://github.com/BlueStylo/drone-gaussian-pipeline/pull/14) |
