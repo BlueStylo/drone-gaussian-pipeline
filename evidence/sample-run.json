@@ -1,0 +1,38 @@
+{
+  "record_type": "sanitized_historical_measurement",
+  "measured_at": "2026-09-14",
+  "published_at": "2026-09-21",
+  "scene": "Public stationary-object shoe video; not drone footage. Source media and outputs are not redistributed.",
+  "machine": "Apple M1 Pro / 32 GB unified memory",
+  "versions": {
+    "brush": "0.3.0",
+    "colmap": "4.2.0",
+    "ffmpeg": "9.0.1",
+    "playcanvas": "2.22.1"
+  },
+  "input": {
+    "duration_seconds": 65.516667,
+    "bytes": 82580751,
+    "extract_fps": 2,
+    "max_image_dimension": 960
+  },
+  "registered_frames": 131,
+  "total_frames": 131,
+  "sparse_points": 31091,
+  "mean_reprojection_error_pixels": 0.34242,
+  "training": {
+    "steps": 4000,
+    "max_image_dimension": 768,
+    "sh_degree": 2,
+    "seconds": 280.29,
+    "heldout_views": 17
+  },
+  "processing_seconds": 366.15,
+  "result": {
+    "gaussians": 281719,
+    "ply_bytes": 42822314,
+    "nonfinite_values": 0,
+    "size_matches_header": true
+  },
+  "source": "Original sample TEST_REPORT.md, environment.json and result_validation.json; identifying paths omitted."
+}
