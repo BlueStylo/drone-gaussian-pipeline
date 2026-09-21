@@ -84,6 +84,14 @@ This uses an existing server and requires no additional object-storage subscript
 
 Before switching, verify the NAS copy against the model length and SHA-256 in [web-viewer.md](web-viewer.md). Check HTTPS reachability from outside the VPN, HEAD, a bounded Range request and an ETag-based 304. After switching, repeat those checks through the unchanged Worker URL and open the viewer. Record actual transfer measurements separately from local unit tests; a host change alone does not establish a speed improvement.
 
+## Reuse the public model from another viewer
+
+A separately hosted viewer can load the same intentionally public model from `https://your-viewer.example.com/yangdong-3d/model.ply`. Accepted model responses (200, 206, 304, 416 and HEAD) include `Access-Control-Allow-Origin: *` and expose `ETag`, `Content-Range` and `Accept-Ranges` to browser JavaScript. They do not include `Access-Control-Allow-Credentials`. This policy applies only to `model.ply`; the other seven assets, private/unknown paths, redirects and generic errors do not gain CORS access.
+
+Configure that viewer's model URL to the public endpoint and allow the Worker origin in the viewer page's CSP `connect-src`. Use credential-free loading, for example `fetch(modelUrl, { credentials: 'omit' })`, and let the browser handle normal HTTP cache revalidation. Adding custom authorization or conditional headers can trigger a preflight; this Worker still accepts only GET and HEAD and does not add OPTIONS support. The [Fetch CORS protocol](https://fetch.spec.whatwg.org/#http-cors-protocol) distinguishes this resource permission from iframe `frame-ancestors`, which remains unchanged.
+
+The repository's own public viewer keeps its relative `./model.ply` path. Model bytes, camera coordinates and viewer controls do not change merely because a different viewer downloads the same public file. A browser may maintain separate cache partitions for different viewer sites, so a previous download elsewhere does not guarantee an already populated cache. Verify the actual external viewer's request, rendering and repeat-load behavior after deployment; unit tests establish the Worker response policy, not the external application integration.
+
 ## Embed the current demo
 
 The published viewer's server headers have been verified to permit framing from **HTTPS `bluestylo.github.io`**, including pages below that origin. They do not allow localhost or another portfolio origin. This confirms the viewer-side setting; it does not mean an embedding change has been published or tested on a portfolio site.
