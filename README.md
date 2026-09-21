@@ -10,7 +10,9 @@
 
 ![복원된 3D 모델에서 시점을 이동하는 실제 시연](assets/yangdong-3d-hero.gif)
 
-GIF는 실제 웹 뷰어의 조작 시연입니다. 링크를 열면 직접 회전·확대·시점 이동을 할 수 있습니다. 공개 모델은 약 104MB이며 라즈베리파이의 가동과 인터넷 연결이 필요합니다.
+GIF는 실제 웹 뷰어의 조작 시연입니다. 링크를 열면 직접 회전·확대·시점 이동을 할 수 있습니다. 공개 모델은 약 104MB입니다. 모델은 NAS에서, HTML·엔진 등 뷰어 자산은 Raspberry Pi에서 제공하므로 두 서버의 가동과 인터넷 연결이 필요합니다.
+
+**2026-09-21 모델 전달 개선:** 공개 주소를 유지하면서 모델을 NAS의 전용 HTTPS 원본으로 옮겼습니다. 기존 공개 주소에서 103.5MB 전체 다운로드를 약 14.9초에 완료하고 원본 SHA-256 일치를 확인했습니다. 다운로드 시간이며 브라우저의 모델 해석·GPU 준비 시간은 별도입니다. [측정 기록](evidence/model-delivery.json) · [배포 구성](docs/deployment.md#optional-separate-model-origin)
 
 ## 구현한 것
 
@@ -27,10 +29,11 @@ flowchart LR
     B --> C[COLMAP cameras / sparse model]
     C --> D[Brush · Metal training]
     D --> E[Validate / compress PLY]
-    E --> F[PlayCanvas viewer]
-    F --> G[Public static origin]
-    G --> H[Cloudflare Worker]
-    H --> I[Browser / portfolio iframe]
+    E --> N[NAS · model-only HTTPS]
+    V[Viewer HTML / engine / scene] --> G[Pi · public asset directory]
+    N --> H[Cloudflare Worker]
+    G --> H
+    H --> I[PlayCanvas browser / portfolio iframe]
 ```
 
 ## 실제 제작 결과
@@ -63,7 +66,7 @@ npm run check
 - [설치와 시작](docs/setup.md): 본인 영상으로 실행하기 위한 FFmpeg·COLMAP·Brush 준비.
 - [복원 CLI](docs/pipeline.md): manifest 입력, 출력 경로, 완료 단계 재사용, 추가 촬영분 연결.
 - [웹 뷰어](docs/web-viewer.md): 엔진 준비, 모델 배치, 로컬 보기.
-- [배포와 iframe](docs/deployment.md): Caddy 예제, Worker 설정, 포트폴리오 연결.
+- [배포와 iframe](docs/deployment.md): Caddy 예제, Worker 설정, 모델 전용 원본 선택, 포트폴리오 연결.
 - [검증·압축 도구](docs/validation-tools.md): 카메라 정렬, PNG 평가, PLY 검증.
 
 ## 저장소 구성

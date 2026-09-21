@@ -9,6 +9,8 @@ __pycache__/
 !.env.example
 .dev.vars*
 .wrangler/
+worker/wrangler.local.jsonc
+worker/wrangler.local.json
 runs/
 data/
 *.ply

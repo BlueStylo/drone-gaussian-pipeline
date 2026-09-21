@@ -16,25 +16,34 @@ const RESPONSE_HEADERS = [
 ];
 const CSP = "default-src 'self'; script-src 'self'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' blob:; base-uri 'self'; form-action 'none'";
 
+function validHTTPS(url) {
+  return url.protocol === 'https:' && !url.username && !url.password
+    && !url.search && !url.hash && url.hostname !== 'localhost'
+    && !url.hostname.endsWith('.localhost') && !url.hostname.endsWith('.local')
+    && !url.hostname.startsWith('[') && !/^(?:\d+\.){3}\d+$/.test(url.hostname)
+    && url.hostname.includes('.')
+    && url.hostname.split('.').every(label => /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(label));
+}
+
+function assetDirectory(value) {
+  if (typeof value !== 'string') return null;
+  try {
+    const url = new URL(value);
+    // Canonical URLs reject whitespace, credentials, encoded paths and dot segments.
+    return validHTTPS(url) && value === url.href && url.pathname.endsWith('/')
+      && /^\/(?:[A-Za-z0-9_-]+\/)*$/.test(url.pathname) ? url.href : null;
+  } catch { return null; }
+}
+
 // These are trusted deployment settings, never values from the request.
 function configuration(env) {
-  const base = env?.ASSET_BASE_URL;
+  const base = assetDirectory(env?.ASSET_BASE_URL);
   const ancestor = env?.ALLOWED_FRAME_ORIGIN;
-  if (typeof base !== 'string' || typeof ancestor !== 'string') return null;
+  if (!base || typeof ancestor !== 'string') return null;
   try {
-    const asset = new URL(base), frame = new URL(ancestor);
-    const validHTTPS = url => url.protocol === 'https:' && !url.username && !url.password
-      && !url.search && !url.hash && url.hostname !== 'localhost'
-      && !url.hostname.endsWith('.localhost') && !url.hostname.endsWith('.local')
-      && !url.hostname.startsWith('[') && !/^(?:\d+\.){3}\d+$/.test(url.hostname)
-      && url.hostname.includes('.')
-      && url.hostname.split('.').every(label => /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(label));
-    if (!validHTTPS(asset) || !validHTTPS(frame)) return null;
-    // Canonical URLs reject whitespace, credentials, encoded paths and dot segments.
-    if (base !== asset.href || !asset.pathname.endsWith('/')
-      || !/^\/(?:[A-Za-z0-9_-]+\/)*$/.test(asset.pathname)) return null;
-    if (ancestor !== frame.origin) return null;
-    return { base: asset.href, ancestor: frame.origin };
+    const frame = new URL(ancestor);
+    if (!validHTTPS(frame) || ancestor !== frame.origin) return null;
+    return { base, ancestor: frame.origin };
   } catch { return null; }
 }
 
@@ -82,7 +91,14 @@ export async function handleRequest(request, env, fetchUpstream = fetch) {
   if (!config) return errorResponse(503, 'Public viewer is not configured', request.method);
   if (redirect) return publicRedirect(url, config.ancestor);
 
-  // Create a fresh request to this one configured public directory. Client cookies,
+  let upstreamBase = config.base;
+  if (name === 'model.ply' && Object.hasOwn(env, 'MODEL_BASE_URL')) {
+    upstreamBase = assetDirectory(env.MODEL_BASE_URL);
+    if (!upstreamBase) return errorResponse(503, 'Public model is not configured', request.method);
+  }
+
+  // Create a fresh request to the configured public directory for this asset.
+  // A separate model origin never changes the other seven allowed files. Client cookies,
   // credentials, forwarding headers and arbitrary query strings never cross it.
   const upstreamHeaders = new Headers();
   for (const name of REQUEST_HEADERS) {
@@ -91,7 +107,7 @@ export async function handleRequest(request, env, fetchUpstream = fetch) {
   }
   let upstream;
   try {
-    upstream = await fetchUpstream(config.base + name, {
+    upstream = await fetchUpstream(upstreamBase + name, {
       method: request.method, headers: upstreamHeaders, redirect: 'manual',
     });
   } catch {

@@ -1,0 +1,151 @@
+{
+  "date": "2026-09-21",
+  "delivery": "Existing public Worker URL; separate model-only HTTPS origin on an existing NAS",
+  "model_bytes": 103505301,
+  "model_sha256": "c2ce5cf728846c3a791229dd22f0b8635a2f8693842d8ecf6c3ccd3e07d0b428",
+  "direct_model_origin": {
+    "bytes": 103505301,
+    "sha256": "c2ce5cf728846c3a791229dd22f0b8635a2f8693842d8ecf6c3ccd3e07d0b428",
+    "headers_seconds": 0.06,
+    "total_seconds": 22.825,
+    "MB_per_second": 4.535
+  },
+  "public_worker": {
+    "url": "https://yangdong-3d.yangdong-3d-public-proxy.workers.dev/yangdong-3d/model.ply",
+    "full_download": {
+      "name": "full-model",
+      "bytes": 103505301,
+      "sha256": "c2ce5cf728846c3a791229dd22f0b8635a2f8693842d8ecf6c3ccd3e07d0b428",
+      "headers_seconds": 1.55,
+      "total_seconds": 14.867
+    },
+    "conditional_request": {
+      "name": "model-revalidate",
+      "status": 304,
+      "body_bytes": 0,
+      "seconds": 1.415
+    },
+    "checks": [
+      {
+        "name": "new-origin-html",
+        "status": 200,
+        "final_url": "https://yangdong-3d.yangdong-3d-public-proxy.workers.dev/yangdong-3d/"
+      },
+      {
+        "name": "security-headers",
+        "csp": "default-src 'self'; script-src 'self'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' blob:; base-uri 'self'; form-action 'none'; frame-ancestors 'self' https://bluestylo.github.io",
+        "set_cookie": false,
+        "x_frame_options": null
+      },
+      {
+        "name": "denied",
+        "path": "/api/cameras",
+        "status": 404
+      },
+      {
+        "name": "denied",
+        "path": "/site/splat/model.ply",
+        "status": 404
+      },
+      {
+        "name": "denied",
+        "path": "/yangdong-3d/runtime.env",
+        "status": 404
+      },
+      {
+        "name": "denied",
+        "path": "/yangdong-3d/../api/cameras",
+        "status": 404
+      },
+      {
+        "name": "denied",
+        "path": "/yangdong-3d/%2e%2e/api/cameras",
+        "status": 404
+      },
+      {
+        "name": "read-only",
+        "status": 405
+      },
+      {
+        "name": "module-mime",
+        "file": "viewer.mjs",
+        "status": 200
+      },
+      {
+        "name": "module-mime",
+        "file": "playcanvas-2.22.1.mjs",
+        "status": 200
+      },
+      {
+        "name": "scene",
+        "views": 6,
+        "initial_view": 0
+      },
+      {
+        "name": "model-head",
+        "status": 200,
+        "bytes": 103505301,
+        "etag": "\"dlkn39b3sid81pmh79\""
+      },
+      {
+        "name": "model-range",
+        "status": 206,
+        "bytes": 1024,
+        "content_range": "bytes 0-1023/103505301"
+      },
+      {
+        "name": "model-multipart-range",
+        "status": 206,
+        "parts": 2,
+        "bytes": 363
+      },
+      {
+        "name": "model-revalidate",
+        "status": 304,
+        "body_bytes": 0,
+        "seconds": 1.415
+      },
+      {
+        "name": "full-model",
+        "bytes": 103505301,
+        "sha256": "c2ce5cf728846c3a791229dd22f0b8635a2f8693842d8ecf6c3ccd3e07d0b428",
+        "headers_seconds": 1.55,
+        "total_seconds": 14.867
+      }
+    ]
+  },
+  "local_validation": {
+    "python_tests": 30,
+    "node_tests": 25,
+    "worker_tests_included": 20
+  },
+  "browser_validation": {
+    "verified": true,
+    "front_view_rendered": true,
+    "neighborhood_view_rendered": true,
+    "reset_returns_front": true,
+    "reload_returns_front": true,
+    "console_errors": 0,
+    "console_warnings": 0,
+    "model_on_reload": {
+      "network_status": 304,
+      "browser_effective_response_status": 200,
+      "encoded_transfer_bytes": 731,
+      "model_bytes_reused": 103505301,
+      "explanation": "CDP responseReceivedExtraInfo shows network 304; loadingFinished reports 731 encoded bytes. Browser supplies the cached model body."
+    },
+    "portfolio_site_itself_tested": false
+  },
+  "limitations": [
+    "Single full-transfer samples from one Mac, not a concurrency or availability guarantee.",
+    "Download duration excludes client model decoding and GPU preparation.",
+    "Other seven viewer assets still use the existing source host.",
+    "Browser caches may redownload once after the ETag changes."
+  ],
+  "service_preservation": {
+    "existing_https_container_restarted": false,
+    "existing_application_routes_changed": false,
+    "private_camera_configuration_changed": false,
+    "r2_activated": false
+  }
+}

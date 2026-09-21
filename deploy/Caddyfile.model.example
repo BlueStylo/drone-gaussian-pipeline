@@ -1,0 +1,31 @@
+{
+    admin off
+    auto_https off
+}
+
+:8080 {
+    header {
+        X-Content-Type-Options nosniff
+        X-Robots-Tag "noindex, nofollow"
+        Referrer-Policy no-referrer
+        Content-Security-Policy "default-src 'none'; frame-ancestors 'none'; base-uri 'none'"
+    }
+    @unsupported not method GET HEAD
+    handle @unsupported {
+        header Allow "GET, HEAD"
+        header Cache-Control no-store
+        respond "Method not allowed" 405
+    }
+    @model path /yangdong-3d/model.ply
+    handle @model {
+        root * /srv
+        rewrite * /model.ply
+        header Content-Type application/octet-stream
+        header Cache-Control "public, max-age=0, must-revalidate"
+        file_server
+    }
+    handle {
+        header Cache-Control no-store
+        respond "Not found" 404
+    }
+}

@@ -262,3 +262,138 @@ test('configuration comes only from trusted bindings and the default handler pas
   assert.match(redirected.headers.get('Content-Security-Policy'), /other-portfolio\.example\.com/);
   assert.equal((await worker.fetch(req('/'), {})).status, 503);
 });
+
+const MODEL_UPSTREAM = 'https://models.example.com/public-models/';
+const MODEL_ENV = { ...ENV, MODEL_BASE_URL: MODEL_UPSTREAM };
+
+test('a separate model directory affects only model.ply and ignores client routing inputs', async () => {
+  for (const name of ['', 'index.html', 'viewer.css', 'viewer.mjs', 'scene.json', 'model.ply',
+    'playcanvas-2.22.1.mjs', 'PLAYCANVAS_LICENSE.txt', 'robots.txt']) {
+    let calls = 0;
+    const response = await configuredRequest(req('/yangdong-3d/' + name + '?MODEL_BASE_URL=https://evil.invalid/&url=https://evil.invalid/private.ply', {
+      headers: { MODEL_BASE_URL: 'https://evil.invalid/', Cookie: 'secret', Authorization: 'Bearer secret' },
+    }), MODEL_ENV, async (url, options) => {
+      calls++;
+      assert.equal(url, (name === 'model.ply' ? MODEL_UPSTREAM : UPSTREAM) + (name || 'index.html'));
+      assert.equal(options.redirect, 'manual');
+      assert.deepEqual([...options.headers], []);
+      return new Response('public asset');
+    });
+    assert.equal(response.status, 200); assert.equal(calls, 1);
+    assert.match(response.headers.get('Content-Security-Policy'), /frame-ancestors 'self' https:\/\/portfolio\.example\.com$/);
+  }
+  for (const path of ['/model.ply', '/yangdong-3d/%6dodel.ply', '/yangdong-3d/model.ply/extra', '/yangdong-3d//model.ply']) {
+    assert.equal((await configuredRequest(req(path), MODEL_ENV, neverFetch)).status, 404);
+  }
+});
+
+test('a present but invalid model directory fails closed for model requests without disrupting other assets', async () => {
+  for (const value of [undefined, null, 42, '',
+    'http://models.example.com/', 'https://user:secret@models.example.com/',
+    MODEL_UPSTREAM + '?token=secret', MODEL_UPSTREAM + '#fragment',
+    'https://models.example.com/no-trailing-slash', 'https://models.example.com/path/../private/',
+    'https://models.example.com/%70rivate/', 'https://models.example.com/invalid.path/',
+    ' https://models.example.com/', 'https://models.example.com/\n',
+    'https://127.0.0.1/', 'https://[::1]/', 'https://localhost/', 'https://device.local/',
+    'https://models..example.com/', 'https://*.example.com/',
+  ]) {
+    const env = { ...ENV, MODEL_BASE_URL: value };
+    for (const method of ['GET', 'HEAD']) {
+      const response = await configuredRequest(req('/yangdong-3d/model.ply', { method }), env, neverFetch);
+      assert.equal(response.status, 503, String(value));
+      assert.equal(response.headers.get('Cache-Control'), 'no-store');
+      assert.equal(response.headers.get('X-Content-Type-Options'), 'nosniff');
+      assert.doesNotMatch(await response.text(), /secret|models\.example/);
+      if (method === 'HEAD') assert.equal(response.body, null);
+    }
+    assert.equal((await configuredRequest(req('/'), env, neverFetch)).status, 302);
+    const html = await configuredRequest(req('/yangdong-3d/'), env, async url => {
+      assert.equal(url, UPSTREAM + 'index.html'); return new Response('viewer');
+    });
+    assert.equal(await html.text(), 'viewer');
+  }
+});
+
+test('a separate model origin preserves the unread stream, validators, and the request header allowlist', async () => {
+  let pulls = 0;
+  const stream = new ReadableStream({
+    pull(controller) { pulls++; controller.enqueue(new Uint8Array([1, 2, 3])); controller.close(); },
+  }, { highWaterMark: 0 });
+  const headers = { Range: 'bytes=0-2', 'If-None-Match': '"old"', 'If-Modified-Since': 'Mon, 21 Sep 2026 00:00:00 GMT',
+    'If-Range': '"model"', Cookie: 'secret', Authorization: 'secret', Origin: 'https://evil.invalid',
+    'X-Forwarded-For': '127.0.0.1', 'Accept-Encoding': 'gzip' };
+  const response = await configuredRequest(req('/yangdong-3d/model.ply', { headers }), MODEL_ENV, async (url, options) => {
+    assert.equal(url, MODEL_UPSTREAM + 'model.ply');
+    assert.deepEqual(Object.fromEntries(options.headers), { range: headers.Range, 'if-none-match': headers['If-None-Match'],
+      'if-modified-since': headers['If-Modified-Since'], 'if-range': headers['If-Range'] });
+    return new Response(stream, { status: 206, headers: {
+      'Content-Type': 'incorrect/type', 'Content-Length': '3', 'Content-Range': 'bytes 0-2/10',
+      'Accept-Ranges': 'bytes', ETag: '"model"', 'Last-Modified': headers['If-Modified-Since'],
+      'Cache-Control': 'public, max-age=0, must-revalidate', 'Set-Cookie': 'secret',
+    } });
+  });
+  assert.equal(response.status, 206); assert.strictEqual(response.body, stream); assert.equal(pulls, 0);
+  assert.equal(response.headers.get('Content-Range'), 'bytes 0-2/10');
+  assert.equal(response.headers.get('Content-Length'), '3');
+  assert.equal(response.headers.get('ETag'), '"model"');
+  assert.equal(response.headers.get('Last-Modified'), headers['If-Modified-Since']);
+  assert.equal(response.headers.get('Cache-Control'), 'public, max-age=0, must-revalidate');
+  assert.equal(response.headers.get('Content-Type'), 'application/octet-stream');
+  assert.equal(response.headers.get('Set-Cookie'), null);
+  await response.body.cancel();
+});
+
+test('model origin HEAD, 304, and 416 stay bodyless and cancel any unexpected upstream body', async () => {
+  for (const [method, status] of [['HEAD', 200], ['GET', 304], ['GET', 416]]) {
+    let cancelled = false;
+    const stream = new ReadableStream({ cancel() { cancelled = true; } });
+    const response = await configuredRequest(req('/yangdong-3d/model.ply', { method }), MODEL_ENV, async (url, options) => {
+      assert.equal(url, MODEL_UPSTREAM + 'model.ply'); assert.equal(options.method, method);
+      return new Response(status === 304 ? null : stream, { status, headers: {
+        'Content-Length': '10', 'Content-Range': status === 416 ? 'bytes */10' : 'bytes 0-9/10',
+        ETag: '"model"', 'Cache-Control': 'public, max-age=0, must-revalidate',
+      } });
+    });
+    assert.equal(response.status, status); assert.equal(response.body, null);
+    assert.equal(cancelled, status !== 304);
+    assert.equal(response.headers.get('ETag'), '"model"');
+    assert.equal(response.headers.get('Content-Length'), status === 416 ? null : '10');
+    if (status === 416) assert.equal(response.headers.get('Content-Range'), 'bytes */10');
+  }
+});
+
+test('model origin multipart ranges retain their boundary and original stream', async () => {
+  const contentType = 'multipart/byteranges; boundary=model-parts';
+  const body = '--model-parts\r\nContent-Type: application/octet-stream\r\nContent-Range: bytes 0-1/10\r\n\r\n01\r\n'
+    + '--model-parts\r\nContent-Type: application/octet-stream\r\nContent-Range: bytes 8-9/10\r\n\r\n89\r\n--model-parts--\r\n';
+  const bytes = new TextEncoder().encode(body);
+  const stream = new ReadableStream({ start(controller) { controller.enqueue(bytes); controller.close(); } });
+  const response = await configuredRequest(req('/yangdong-3d/model.ply', { headers: { Range: 'bytes=0-1,8-9' } }), MODEL_ENV, async (url, options) => {
+    assert.equal(url, MODEL_UPSTREAM + 'model.ply'); assert.equal(options.headers.get('Range'), 'bytes=0-1,8-9');
+    return new Response(stream, { status: 206, headers: { 'Content-Type': contentType, 'Content-Length': String(bytes.length) } });
+  });
+  assert.equal(response.status, 206); assert.strictEqual(response.body, stream);
+  assert.equal(response.headers.get('Content-Type'), contentType);
+  assert.equal(response.headers.get('Content-Length'), String(bytes.length));
+  assert.equal(await response.text(), body);
+});
+
+test('model origin failures never fall back to the asset origin or leak redirects and diagnostics', async () => {
+  for (const outcome of ['throw', 302, 404, 500]) {
+    for (const method of ['GET', 'HEAD']) {
+      let calls = 0, cancelled = false;
+      const response = await configuredRequest(req('/yangdong-3d/model.ply', { method }), MODEL_ENV, async (url, options) => {
+        calls++; assert.equal(url, MODEL_UPSTREAM + 'model.ply'); assert.equal(options.redirect, 'manual');
+        if (outcome === 'throw') throw new Error('private model origin diagnostic');
+        const body = new ReadableStream({ cancel() { cancelled = true; } });
+        return new Response(body, { status: outcome, headers: { Location: 'https://private.invalid/login', 'Set-Cookie': 'secret' } });
+      });
+      assert.equal(response.status, 502); assert.equal(calls, 1);
+      assert.equal(cancelled, outcome !== 'throw');
+      assert.equal(response.headers.get('Cache-Control'), 'no-store');
+      assert.equal(response.headers.get('Location'), null); assert.equal(response.headers.get('Set-Cookie'), null);
+      assert.doesNotMatch(await response.text(), /private|secret|diagnostic|login/);
+      if (method === 'HEAD') assert.equal(response.body, null);
+    }
+  }
+});
