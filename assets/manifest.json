@@ -1,0 +1,46 @@
+{
+  "checked_at": "2026-09-21",
+  "purpose": "Public project presentation assets. Original image pixels preserved; no EXIF/GPS/XMP metadata found.",
+  "files": [
+    {
+      "file": "yangdong-3d-hero.gif",
+      "bytes": 4916365,
+      "width": 480,
+      "height": 270,
+      "sha256": "595dbe64ac577ba6edf576959eca87e49e20f6601d7fe1072f5d0739257de2b6",
+      "exif_present": false
+    },
+    {
+      "file": "yangdong-3d-poster.jpg",
+      "bytes": 258893,
+      "width": 1280,
+      "height": 720,
+      "sha256": "f89dc4274c2c4942396f02048f80fa0c7e8e06fd2f197b60daf8eaf1be81ebe3",
+      "exif_present": false
+    },
+    {
+      "file": "source-frame-house-front.jpg",
+      "bytes": 585006,
+      "width": 1600,
+      "height": 900,
+      "sha256": "330b0f6143833f3eb90a0530192905e293a4176b9fba672912b09e05ec7e913b",
+      "exif_present": false
+    },
+    {
+      "file": "source-frame-roof-garden.jpg",
+      "bytes": 656359,
+      "width": 1600,
+      "height": 900,
+      "sha256": "a970366138be3fbaf452b27f666430113e4009c99e37b5895a3698586fcc3cb7",
+      "exif_present": false
+    },
+    {
+      "file": "source-frame-neighborhood.jpg",
+      "bytes": 596161,
+      "width": 1600,
+      "height": 900,
+      "sha256": "5c4c80a094c931ce74d4921e557bc8fbba31d8f860ddc8d4caa91ffd66a0cf7d",
+      "exif_present": false
+    }
+  ]
+}
