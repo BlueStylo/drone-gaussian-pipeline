@@ -5,6 +5,9 @@
   "compatibility_date": "2026-09-21",
   "workers_dev": true,
   "vars": {
+    // Optional: serve only model.ply from a separate public HTTPS directory.
+    // Upload and verify the model before enabling this setting.
+    // "MODEL_BASE_URL": "https://models.example.com/yangdong-3d/",
     "ASSET_BASE_URL": "https://assets.example.com/yangdong-3d/",
     "ALLOWED_FRAME_ORIGIN": "https://portfolio.example.com"
   }

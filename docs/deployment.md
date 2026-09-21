@@ -1,6 +1,8 @@
 # Public deployment
 
-The current [public 3D demo](https://yangdong-3d.yangdong-3d-public-proxy.workers.dev/) uses a Cloudflare Worker in front of a dedicated public asset directory. The model is streamed from the existing source host. Creating that address and enabling its portfolio iframe did not change the existing private camera service, its authentication or its routes. This repository contains a portable public-only extraction; it contains no source hostname, private service configuration, account ID, OAuth token or deployment credentials.
+The current [public 3D demo](https://yangdong-3d.yangdong-3d-public-proxy.workers.dev/) uses a Cloudflare Worker in front of a dedicated public asset directory. The model is streamed from a separate HTTPS origin on an existing NAS; the other seven assets retain the existing source host. Creating that address and enabling its portfolio iframe did not change the existing private camera service, its authentication or its routes. This repository contains a portable public-only extraction; it contains no source hostname, private service configuration, account ID, OAuth token or deployment credentials.
+
+**NAS migration, 2026-09-21:** production now uses a separate model origin. The unchanged public Worker URL delivered all 103,505,301 bytes in 14.867 seconds with the expected SHA-256; a matching ETag returned a bodyless 304 in 1.415 seconds. These are one-Mac transfer measurements, excluding browser decode/GPU initialization. Browser checks rendered the house front, switched to a neighborhood view and reset correctly. Reload returned a network 304 for the model, with 731 encoded bytes transferred while reusing the 103.5 MB cached body; the console had no errors or warnings. See the [release measurements](../evidence/model-delivery.json).
 
 ## Prepare the asset directory
 
@@ -53,7 +55,34 @@ Use your own Cloudflare account and an explicitly chosen Worker name. The reposi
 
 Both bindings are required. Missing/invalid configuration returns a generic 503 and never fetches an asset. IP literals, localhost and `.local` hosts are rejected. Configure only a trusted public origin; the settings are operator-controlled, not a general-purpose URL input. The Worker never derives an upstream address from a request query or header.
 
+The optional `MODEL_BASE_URL` setting uses the same HTTPS-directory rules as `ASSET_BASE_URL`. If absent, all eight assets retain the existing origin. If present, it selects a separate origin only for `model.ply`; an invalid value returns 503 for model requests while other viewer assets keep their existing route. The commented example does not enable this option.
+
 The Worker exposes `/yangdong-3d/` and the same eight assets. `/` redirects to `/yangdong-3d/`, retaining only a valid `view=0..5`. Only GET and HEAD are accepted. Requests forward only `Range`, `If-None-Match`, `If-Modified-Since` and `If-Range`; cookies, authorization, client identity and arbitrary query strings are discarded. Upstream redirects and unexpected error pages become generic 502 responses. A model response uses the original stream without buffering the model in Worker memory. ETag/cache headers, HEAD, 206 single/multipart ranges and 304 are preserved.
+
+## Optional separate model origin
+
+An existing NAS or server can provide the model through an independent static service. Keep `ASSET_BASE_URL` pointing at the current viewer assets, and set `MODEL_BASE_URL` to a verified public HTTPS directory containing `model.ply`, for example `https://models.example.com/yangdong-3d/`. The other seven assets continue to use the original host. Changing `ASSET_BASE_URL` alone would move all eight assets, not just the model.
+
+Use a separate service, document root and available listener for the model. Mount only the public model read-only, disable directory listing, and return 404 for unrelated paths. Do not expose an ownCloud directory, private camera application or repository root. Existing ownCloud, CCTV and application routes remain intact. Publishing a new HTTPS hostname may require adding a site block to a shared TLS proxy; validate and back up that configuration before reloading it. This release added such a block without restarting the existing HTTPS container. The complete-viewer Caddy example above is separate from the model-only example below.
+
+[Caddyfile.model.example](../deploy/Caddyfile.model.example) and [compose.model.example.yaml](../deploy/compose.model.example.yaml) reproduce the isolated model service. Place the verified `model.ply` in `deploy/01_Model/`, choose an unused loopback port, then validate before starting it:
+
+```sh
+docker compose -f deploy/compose.model.example.yaml config --quiet
+docker compose -f deploy/compose.model.example.yaml up -d --pull never
+```
+
+The example pins the Caddy image used during validation, mounts the model read-only, runs as UID/GID 1000, publishes only a loopback listener and uses no cloud storage. The image must already be available when using `--pull never`. Only GET/HEAD of `/yangdong-3d/model.ply` is served; other paths return 404 and other methods return 405. Set up your own public HTTPS proxy separately. The live deployment's Caddy configurations were validated and its local HTTP boundary was tested; CI does not provision Docker or public certificates.
+
+The service must be reachable **from Cloudflare**, with public DNS, a valid HTTPS certificate and working external routing. Connecting an operator's laptop through WireGuard does not connect the Worker to that VPN. A private VPN or loopback address alone is insufficient. This Worker configuration requires an HTTPS hostname; an HTTP-only endpoint cannot be substituted without changing that policy.
+
+The model server should provide GET/HEAD, a correct `Content-Length`, `application/octet-stream`, byte ranges, ETag and Last-Modified. Preserve `public, max-age=0, must-revalidate`: a retained browser copy can revalidate with 304, while a changed ETag triggers a fresh download. The Worker streams the selected origin's response and retains its validators and range headers. A selected model-origin failure returns an error instead of silently retrying the previous host. This option does not add a persistent CDN copy or the Workers Cache API.
+
+The public viewer URL, iframe URL, relative `./model.ply` path and allowed portfolio origin stay the same. Browser requests remain on the Worker origin, so no new browser CORS permission is needed. A move can still cause one full download if the new server generates a different ETag. The original host must remain online for the other seven assets.
+
+This uses an existing server and requires no additional object-storage subscription. Existing hardware, electricity, Internet service, upload bandwidth and any public-network service limits still apply. No R2 account activation or R2 binding is used by this option. Keep account-specific origin addresses in the ignored `worker/wrangler.local.jsonc` file rather than the public example.
+
+Before switching, verify the NAS copy against the model length and SHA-256 in [web-viewer.md](web-viewer.md). Check HTTPS reachability from outside the VPN, HEAD, a bounded Range request and an ETag-based 304. After switching, repeat those checks through the unchanged Worker URL and open the viewer. Record actual transfer measurements separately from local unit tests; a host change alone does not establish a speed improvement.
 
 ## Embed the current demo
 

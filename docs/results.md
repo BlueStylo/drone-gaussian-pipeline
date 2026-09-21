@@ -65,3 +65,17 @@ FFmpeg로 1fps, 최대 변 1,600px, JPEG `-q:v 2` 조건으로 추출했다. 결
 ## 선행 Mac 샘플 시험
 
 2026-09-14에는 65.5초짜리 공개 신발 촬영 샘플을 사용해 Mac 파이프라인을 먼저 검증했다. 131 / 131장 등록, 4,000단계 학습, 281,719개 Gaussian, 총 변환 366.15초를 기록했다. **드론 영상이 아닌 짧은 정물 시험**이며 넓은 지역의 품질·시간을 예측하는 기준으로 쓰지 않는다. 원본 샘플이나 생성 모델은 이 저장소에서 재배포하지 않는다. [샘플 측정](../evidence/sample-run.json) · [출처](provenance.md)
+
+## Public model delivery, 2026-09-21
+
+Only the model origin moved to a separate HTTPS service on an existing NAS. The file was not retrained or recompressed: all 103,505,301 bytes and its SHA-256 were preserved.
+
+| Check | Observed result |
+| --- | --- |
+| Direct NAS HTTPS full download | 22.825 seconds |
+| Existing public Worker URL full download | 14.867 seconds |
+| Conditional request | 304, zero body bytes, 1.415 seconds |
+| Browser reload model request | Network 304, 731 encoded bytes, cached body reused |
+| Visible rendering | House front, neighborhood view and reset verified; no console errors or warnings |
+
+These are individual measurements from one Mac, not a concurrency or availability guarantee. Transfer times exclude browser model decoding and GPU preparation. The other seven viewer assets still depend on the existing Pi. [Release evidence](../evidence/model-delivery.json)

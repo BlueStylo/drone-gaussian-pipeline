@@ -1,0 +1,30 @@
+name: gaussian-model-example
+services:
+  model:
+    image: caddy:2.11.4-alpine@sha256:5f5c8640aae01df9654968d946d8f1a56c497f1dd5c5cda4cf95ab7c14d58648
+    container_name: gaussian-model-example-model
+    restart: unless-stopped
+    user: "1000:1000"
+    read_only: true
+    cap_drop: [ALL]
+    # The upstream Caddy binary has this file capability; keep its bounding bit.
+    cap_add: [NET_BIND_SERVICE]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 128
+    mem_limit: 256m
+    cpus: 1.0
+    ports:
+      - "127.0.0.1:8720:8080"
+    environment:
+      XDG_CONFIG_HOME: /tmp/config
+      XDG_DATA_HOME: /tmp/data
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16777216
+    volumes:
+      - ./Caddyfile.model.example:/etc/caddy/Caddyfile:ro
+      - ./01_Model:/srv:ro
+    logging:
+      driver: json-file
+      options:
+        max-size: 5m
+        max-file: "2"
