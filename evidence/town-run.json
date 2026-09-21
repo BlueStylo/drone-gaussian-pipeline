@@ -1,0 +1,43 @@
+{
+  "record_type": "sanitized_historical_measurement",
+  "measured_at": "2026-09-19",
+  "published_at": "2026-09-21",
+  "machine": "Apple M1 Pro / 32 GB unified memory",
+  "source": "Original local run metrics and completed reconstruction report; raw paths and logs omitted.",
+  "scope": "Existing house frames and COLMAP database/sparse model reused; unified alignment followed by fresh training. Not a continuation from the house PLY.",
+  "frames": {
+    "clip_a": 309,
+    "clip_b": 80,
+    "clip_c": 293,
+    "reused": 389,
+    "added": 293,
+    "registered": 682,
+    "total": 682
+  },
+  "sparse_points": 344264,
+  "mean_reprojection_error_pixels": 0.474761,
+  "verified_cross_capture_image_pairs": 1391,
+  "training": {
+    "steps": 12000,
+    "max_image_dimension": 1280,
+    "sh_degree": 3,
+    "heldout_views": 69,
+    "seconds": 2877.38
+  },
+  "result": {
+    "gaussians": 1688991,
+    "raw_ply_bytes": 398603428,
+    "compressed_ply_bytes": 103505301,
+    "size_reduction_percent": 74.03,
+    "compressed_sha256": "c2ce5cf728846c3a791229dd22f0b8635a2f8693842d8ecf6c3ccd3e07d0b428",
+    "nonfinite_values_raw": 0,
+    "points_removed": false,
+    "sh_degree_preserved": true,
+    "compression_is_lossless": false
+  },
+  "evaluation": {
+    "heldout_render_count": 69,
+    "external_reference_psnr_db": 26.85,
+    "note": "Pillow-aligned PNG comparison. Not the Brush internal metric and not survey accuracy."
+  }
+}

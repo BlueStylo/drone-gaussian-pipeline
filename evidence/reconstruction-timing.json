@@ -1,0 +1,73 @@
+{
+  "scope": "Final house and neighborhood expansion; existing 389 frames and COLMAP database/sparse model reused; fresh 12000-step Brush training",
+  "frames": {
+    "clip_a": 309,
+    "clip_b": 80,
+    "clip_c": 293,
+    "registered_total": 682
+  },
+  "stages": [
+    {
+      "stage": "extract_added_frames",
+      "seconds": 98.34,
+      "started_at": "2026-09-19T16:33:54",
+      "finished_at": "2026-09-19T16:35:32",
+      "status": "complete"
+    },
+    {
+      "stage": "extract_features",
+      "seconds": 130.05,
+      "started_at": "2026-09-19T16:35:33",
+      "finished_at": "2026-09-19T16:37:43",
+      "status": "complete"
+    },
+    {
+      "stage": "sequential_matching",
+      "seconds": 328.16,
+      "started_at": "2026-09-19T16:37:43",
+      "finished_at": "2026-09-19T16:43:11",
+      "status": "complete"
+    },
+    {
+      "stage": "cross_capture_matching",
+      "seconds": 294.42,
+      "started_at": "2026-09-19T16:43:11",
+      "finished_at": "2026-09-19T16:48:05",
+      "status": "complete"
+    },
+    {
+      "stage": "joint_mapping",
+      "seconds": 627.78,
+      "started_at": "2026-09-19T16:48:05",
+      "finished_at": "2026-09-19T16:58:33",
+      "status": "complete"
+    },
+    {
+      "stage": "model_analysis",
+      "seconds": 1.07,
+      "started_at": "2026-09-19T16:58:33",
+      "finished_at": "2026-09-19T16:58:34",
+      "status": "complete"
+    },
+    {
+      "stage": "undistort",
+      "seconds": 10.43,
+      "started_at": "2026-09-19T16:58:34",
+      "finished_at": "2026-09-19T16:58:45",
+      "status": "complete"
+    },
+    {
+      "stage": "train",
+      "seconds": 2877.38,
+      "started_at": "2026-09-19T17:02:28",
+      "finished_at": "2026-09-19T17:50:25",
+      "status": "complete"
+    }
+  ],
+  "processing_seconds": 4367.63,
+  "elapsed_seconds": 4591.0,
+  "excluded": "Initial house reconstruction, drone capture, installation, compression, QA, website deployment, portfolio media production",
+  "record_type": "sanitized_historical_measurement",
+  "published_at": "2026-09-21",
+  "timezone": "Asia/Seoul"
+}
