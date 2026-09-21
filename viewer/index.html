@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#f6f8f5">
+  <title>양동면 3D 모델</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="stylesheet" href="./viewer.css">
+  <script type="module" src="./viewer.mjs"></script>
+</head>
+<body>
+  <header class="page-header">
+    <div class="page-heading"><h1>양동면 3D 모델</h1><p>드론으로 담은 우리 동네 · <time datetime="2026-09-19">2026.09.19</time> 촬영</p></div>
+  </header>
+  <main id="viewer-stage" aria-label="양동면 3D 둘러보기" aria-busy="true">
+    <canvas id="canvas" tabindex="0" aria-label="양동면 3D. 드래그 또는 방향키로 회전하고 더하기·빼기로 확대·축소합니다." aria-describedby="gesture-hint"></canvas>
+    <div class="viewer-toolbar" aria-label="3D 보기 조작">
+      <label class="view-selector"><span class="sr-only">보는 위치</span><select id="viewpoint" disabled><option>집 정면</option></select></label>
+      <button id="reset" type="button" disabled>처음 시점</button>
+      <div class="zoom-controls" role="group" aria-label="확대와 축소">
+        <button id="zoom-in" type="button" aria-label="확대" title="확대" disabled>+</button>
+        <button id="zoom-out" type="button" aria-label="축소" title="축소" disabled>−</button>
+      </div>
+    </div>
+    <div id="loading" class="loading-panel">
+      <p id="status" role="status" aria-live="polite">3D 불러오는 중…</p>
+      <progress id="progress" max="100" aria-label="3D 파일 다운로드"></progress>
+      <button id="retry" type="button" hidden>다시 불러오기</button>
+    </div>
+    <div class="viewer-notes">
+      <p id="gesture-hint"><span class="desktop-hint">드래그로 회전 · 휠로 확대 · 우클릭 드래그로 이동</span><span class="touch-hint">한 손가락으로 회전 · 두 손가락으로 확대·이동</span></p>
+      <p class="capture-note">촬영 당시의 모습입니다. 나무와 유리 주변은 흐려 보일 수 있어요.</p>
+    </div>
+  </main>
+  <noscript>3D를 보려면 브라우저에서 JavaScript를 켜 주세요.</noscript>
+</body>
+</html>

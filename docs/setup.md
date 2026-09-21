@@ -95,7 +95,7 @@ npm run prepare:viewer
 python -m http.server 8080 --bind 127.0.0.1 --directory viewer
 ```
 
-서버 실행 전에 본인의 압축 모델을 `viewer/model.ply`에 놓고, 같은 모델 좌표계의 `viewer/scene.json`을 준비한다. `prepare:viewer`는 설치된 PlayCanvas 엔진과 라이선스만 복사하며 모델을 다운로드하지 않는다. 뷰어 설정 (`web-viewer.md` — 후속 공개 단계에서 추가)에서 장면과 시점 형식을 확인한다.
+서버 실행 전에 본인의 압축 모델을 `viewer/model.ply`에 놓고, 같은 모델 좌표계의 `viewer/scene.json`을 준비한다. `prepare:viewer`는 설치된 PlayCanvas 엔진과 라이선스만 복사하며 모델을 다운로드하지 않는다. [뷰어 설정](web-viewer.md)에서 장면과 시점 형식을 확인한다.
 
 공개 모델용 시점을 다른 모델에 그대로 쓰면 카메라가 장면 밖을 볼 수 있다. 로컬 Python 서버는 표시 확인용이며 운영 캐시·접근 경계 검증을 대신하지 않는다.
 
