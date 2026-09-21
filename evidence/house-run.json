@@ -1,0 +1,35 @@
+{
+  "record_type": "sanitized_historical_measurement",
+  "measured_at": "2026-09-19",
+  "published_at": "2026-09-21",
+  "machine": "Apple M1 Pro / 32 GB unified memory",
+  "source": "Original local run metrics and completed reconstruction report; raw paths and logs omitted.",
+  "frames": {
+    "clip_a": 309,
+    "clip_b": 80,
+    "registered": 389,
+    "total": 389
+  },
+  "sparse_points": 169464,
+  "mean_reprojection_error_pixels": 0.529845,
+  "training": {
+    "steps": 6000,
+    "max_image_dimension": 1280,
+    "sh_degree": 3,
+    "heldout_views": 39,
+    "seconds": 846.76
+  },
+  "timing": {
+    "extract_seconds": 121.39,
+    "alignment_and_undistort_successful_seconds": 694.88,
+    "successful_processing_seconds": 1663.03,
+    "elapsed_seconds": 1835,
+    "note": "Elapsed duration includes retries and waiting. Installation and viewer work are excluded."
+  },
+  "result": {
+    "gaussians": 572927,
+    "ply_bytes": 135212323,
+    "nonfinite_values": 0,
+    "size_matches_header": true
+  }
+}
